@@ -2,7 +2,6 @@ import cors from "cors";
 import "dotenv/config";
 import express from "express";
 
-import todoRoute from "./routes/todo.route.js";
 import userRoute from "./routes/user.route.js";
 import citaRoute from "./routes/cita.routes.js";
 import historialRoute from "./routes/historial.routes.js";
@@ -27,7 +26,6 @@ app.use(express.json());
 app.use(cors());
 
 // Rutas API
-app.use("/todos", todoRoute);
 app.use("/users", userRoute);
 app.use("/citas", citaRoute);
 app.use("/historial", historialRoute);
@@ -46,7 +44,7 @@ app.use("/pagos", pagoRoute);
 app.use("/notificaciones", notificacionRoute);
 app.use("/estadisticas", estadisticaRoute);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3005;
 
 app.listen(PORT, () => {
   console.log(`Server listening on port http://localhost:${PORT}`);

@@ -1,16 +1,31 @@
 import Paciente from '../models/paciente.model.js';
-import Usuario from '../models/user.model.js';
+import { userModel as Usuario } from '../models/user.model.js';
 
 // Crear un nuevo paciente
 export const crearPaciente = async (req, res) => {
   try {
     const { 
       id_usuario, 
+      primer_nombre, 
+      segundo_nombre, 
+      primer_apellido, 
+      segundo_apellido,
       rut, 
-      telefono, 
-      direccion, 
       fecha_nacimiento, 
       sexo, 
+      genero,
+      nacionalidad,
+      estado_civil,
+      foto_url,
+      calle,
+      numero,
+      depto,
+      comuna,
+      region,
+      codigo_postal,
+      telefono_fijo,
+      celular,
+      email,
       grupo_sanguineo, 
       alergias, 
       antecedentes_medicos, 
@@ -19,10 +34,10 @@ export const crearPaciente = async (req, res) => {
     } = req.body;
 
     // Verificar campos obligatorios
-    if (!id_usuario || !rut || !telefono) {
+    if (!id_usuario || !primer_nombre || !primer_apellido || !rut || !celular) {
       return res.status(400).json({ 
         error: true, 
-        mensaje: 'ID de usuario, RUT y teléfono son obligatorios' 
+        mensaje: 'ID de usuario, primer nombre, primer apellido, RUT y celular son obligatorios' 
       });
     }
 
@@ -47,11 +62,26 @@ export const crearPaciente = async (req, res) => {
     // Crear el nuevo paciente
     const nuevoPaciente = {
       id_usuario,
+      primer_nombre,
+      segundo_nombre: segundo_nombre || null,
+      primer_apellido,
+      segundo_apellido: segundo_apellido || null,
       rut,
-      telefono,
-      direccion: direccion || null,
       fecha_nacimiento: fecha_nacimiento || null,
       sexo: sexo || null,
+      genero: genero || null,
+      nacionalidad: nacionalidad || null,
+      estado_civil: estado_civil || null,
+      foto_url: foto_url || null,
+      calle: calle || null,
+      numero: numero || null,
+      depto: depto || null,
+      comuna: comuna || null,
+      region: region || null,
+      codigo_postal: codigo_postal || null,
+      telefono_fijo: telefono_fijo || null,
+      celular,
+      email: email || usuario.email || null,
       grupo_sanguineo: grupo_sanguineo || null,
       alergias: alergias || null,
       antecedentes_medicos: antecedentes_medicos || null,

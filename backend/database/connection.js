@@ -2,8 +2,13 @@ import pkg from "pg";
 import "dotenv/config";
 const { Pool } = pkg;
 
-// cambia los datos de acuerdo a tu configuracion de postgres
+// Configuración de la pool de conexiones a PostgreSQL
 export const pool = new Pool({
+  user: process.env.DB_USER || 'patriciozepeda',
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME || 'agenda_medica',
+  password: process.env.DB_PASSWORD || '',
+  port: process.env.DB_PORT || 5432,
   allowExitOnIdle: true,
 });
 

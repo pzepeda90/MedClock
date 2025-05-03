@@ -1,5 +1,5 @@
 import Profesional from '../models/profesional.model.js';
-import Usuario from '../models/user.model.js';
+import { userModel as Usuario } from '../models/user.model.js';
 import Especialidad from '../models/especialidad.model.js';
 import Servicio from '../models/servicio.model.js';
 

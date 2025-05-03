@@ -4,11 +4,13 @@ import jwt from "jsonwebtoken";
 import { userModel } from "../models/user.model.js";
 
 const register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, nombre, role } = req.body;
   try {
     await userModel.create({
       email,
       password: bcript.hashSync(password, 10),
+      nombre: nombre || 'Usuario',
+      role: role || 'paciente'
     });
 
     return res.status(201).json({ message: "User created successfully" });
@@ -40,7 +42,7 @@ const login = async (req, res) => {
     // creación del payload
     const payload = {
       email,
-      user_id: user.user_id,
+      user_id: user.id,
     };
 
     // creación del token

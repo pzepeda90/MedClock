@@ -1,5 +1,5 @@
 import Notificacion from '../models/notificacion.model.js';
-import Usuario from '../models/user.model.js';
+import { userModel as Usuario } from '../models/user.model.js';
 import Cita from '../models/cita.model.js';
 
 // Crear una nueva notificación
