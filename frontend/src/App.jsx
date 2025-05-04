@@ -1,69 +1,142 @@
 import { useContext } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
-
+import { Route, Routes, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import ProcedimientosPanel from "./pages/ProcedimientosPanel";
+import ProcedimientosMedico from "./pages/ProcedimientosMedico";
+import Calendario from "./pages/CalendarioWrapper";
 import { UserContext } from "./providers/UserProvider";
 
 import HomePage from "./pages/Home";
-import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import CalendarioWrapper from "./pages/CalendarioWrapper";
 import Pacientes from "./pages/Pacientes";
 import Medicos from "./pages/Medicos";
 import Citas from "./pages/Citas";
 import Perfil from "./pages/Perfil";
 import Usuarios from "./pages/Usuarios";
 
-const App = () => {
-  const { token } = useContext(UserContext);
-
+function App() {
   return (
     <Routes>
-      {/* Rutas públicas */}
       <Route path="/" element={<HomePage />} />
-      <Route
-        path="/login"
-        element={token ? <Navigate to="/dashboard" /> : <LoginPage />}
-      />
-      <Route
-        path="/register"
-        element={token ? <Navigate to="/dashboard" /> : <RegisterPage />}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<RegisterPage />} />
+      
+      <Route 
+        path="/dashboard" 
+        element={
+          <RequireAuth>
+            <Dashboard />
+          </RequireAuth>
+        } 
       />
       
-      {/* Rutas protegidas */}
-      <Route
-        path="/dashboard"
-        element={token ? <Dashboard /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/calendario"
-        element={token ? <CalendarioWrapper /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/pacientes"
-        element={token ? <Pacientes /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/medicos"
-        element={token ? <Medicos /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/citas"
-        element={token ? <Citas /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/perfil"
-        element={token ? <Perfil /> : <Navigate to="/login" />}
-      />
-      <Route
-        path="/usuarios"
-        element={token ? <Usuarios /> : <Navigate to="/login" />}
+      <Route 
+        path="/calendario" 
+        element={
+          <RequireAuth>
+            <Calendario />
+          </RequireAuth>
+        } 
       />
       
-      {/* Ruta de fallback */}
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route 
+        path="/procedimientos" 
+        element={
+          <RequireAuth requireAdmin={true}>
+            <ProcedimientosPanel />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route 
+        path="/mis-procedimientos" 
+        element={
+          <RequireAuth requireMedico={true}>
+            <ProcedimientosMedico />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route 
+        path="/pacientes" 
+        element={
+          <RequireAuth>
+            <Pacientes />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route 
+        path="/medicos" 
+        element={
+          <RequireAuth>
+            <Medicos />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route 
+        path="/citas" 
+        element={
+          <RequireAuth>
+            <Citas />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route 
+        path="/perfil" 
+        element={
+          <RequireAuth>
+            <Perfil />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route 
+        path="/usuarios" 
+        element={
+          <RequireAuth requireAdmin={true}>
+            <Usuarios />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
-};
+}
+
+// Componente para proteger rutas
+function RequireAuth({ children, requireAdmin = false, requireMedico = false }) {
+  const { user, loading } = useContext(UserContext);
+  
+  // Mientras se carga el usuario, mostramos un spinner
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+  
+  // Si no hay usuario autenticado, redirigir al login
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // Si se requiere rol de admin, verificar
+  if (requireAdmin && user.rol !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  // Si se requiere rol de médico, verificar
+  if (requireMedico && user.rol !== 'medico' && user.rol !== 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return children;
+}
 
 export default App;

@@ -1,5 +1,6 @@
 import { useState, useContext, useRef, useEffect } from "react";
 import { UserContext } from "../providers/UserProvider";
+import { ProcedimientosContext } from "../providers/ProcedimientosProvider";
 import MainLayout from "../components/MainLayout";
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -9,6 +10,7 @@ import esLocale from '@fullcalendar/core/locales/es';
 
 export default function CalendarioWrapper() {
   const { user } = useContext(UserContext);
+  const { obtenerEventosProcedimientos, actualizarProcedimiento, tienePermiso } = useContext(ProcedimientosContext);
   const [vista, setVista] = useState("dayGridMonth"); // dayGridMonth, timeGridWeek, timeGridDay
   const calendarRef = useRef(null);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -38,27 +40,36 @@ export default function CalendarioWrapper() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [eventContextMenuVisible, setEventContextMenuVisible] = useState(false);
   
-  // Configuración de permisos por rol
+  // Configuración de permisos por rol - Actualizada para ser más específica
   const rolPermisos = {
     admin: {
       puedeVerTodo: true,
       puedeCrearCualquierCita: true,
       puedeEditarCualquierCita: true,
-      puedeEliminarCualquierCita: true
+      puedeEliminarCualquierCita: true,
+      tiposCitaPermitidos: ['consulta', 'procedimiento', 'examen'],
+      procedimientosPermitidos: ['inyeccion_intravitrea', 'laser', 'cirugia_menor', 'cirugia_mayor']
     },
     medico: {
       puedeVerTodo: false,
+      puedeVerPropias: true,
       puedeCrearCualquierCita: false,
+      puedeCrearPropias: true,
       puedeEditarCualquierCita: false,
+      puedeEditarPropias: true,
       puedeEliminarCualquierCita: false,
+      puedeEliminarPropias: true,
       tiposCitaPermitidos: ['consulta', 'procedimiento', 'examen'],
       procedimientosPermitidos: ['inyeccion_intravitrea', 'laser', 'cirugia_menor', 'cirugia_mayor']
     },
     enfermero: {
-      puedeVerTodo: false,
+      puedeVerTodo: true,
       puedeCrearCualquierCita: false,
+      puedeCrearPropias: true,
       puedeEditarCualquierCita: false,
+      puedeEditarPropias: true,
       puedeEliminarCualquierCita: false,
+      puedeEliminarPropias: false,
       tiposCitaPermitidos: ['examen'],
       procedimientosPermitidos: ['inyeccion_intravitrea']
     },
@@ -67,14 +78,75 @@ export default function CalendarioWrapper() {
       puedeCrearCualquierCita: true,
       puedeEditarCualquierCita: true,
       puedeEliminarCualquierCita: false,
-      tiposCitaPermitidos: ['consulta']
+      tiposCitaPermitidos: ['consulta', 'examen'],
+      procedimientosPermitidos: []
+    },
+    tecnologo: {
+      puedeVerTodo: false,
+      puedeVerPropias: true,
+      puedeCrearCualquierCita: false,
+      puedeCrearPropias: true,
+      puedeEditarCualquierCita: false,
+      puedeEditarPropias: true,
+      puedeEliminarCualquierCita: false,
+      puedeEliminarPropias: false,
+      tiposCitaPermitidos: ['examen'],
+      procedimientosPermitidos: []
     }
   };
   
   // Obtener permisos del usuario actual
   const getPermisosUsuario = () => {
-    const rol = user?.rol || 'recepcionista'; // Por defecto, menos privilegios
-    return rolPermisos[rol] || rolPermisos.recepcionista;
+    const rol = user?.rol || 'enfermero'; // Por defecto, menos privilegios
+    return rolPermisos[rol] || rolPermisos.enfermero;
+  };
+  
+  // Verificar si un evento es propio del usuario
+  const esEventoPropio = (evento) => {
+    if (!user || !user.id) return false;
+    
+    // Para procedimientos quirúrgicos
+    if (evento.id.startsWith('proc-') && evento.extendedProps && evento.extendedProps.medicoId) {
+      return evento.extendedProps.medicoId === user.id;
+    }
+    
+    // Para citas regulares (buscar por el médico asignado)
+    if (evento.extendedProps && evento.extendedProps.doctor) {
+      const doctorEvento = medicos.find(m => m.nombre === evento.extendedProps.doctor);
+      return doctorEvento && doctorEvento.id === user.id;
+    }
+    
+    return false;
+  };
+  
+  // Verificar si el usuario puede ver un evento
+  const puedeVerEvento = (evento) => {
+    const permisos = getPermisosUsuario();
+    
+    if (permisos.puedeVerTodo) return true;
+    if (permisos.puedeVerPropias && esEventoPropio(evento)) return true;
+    
+    return false;
+  };
+  
+  // Verificar si el usuario puede editar un evento
+  const puedeEditarEvento = (evento) => {
+    const permisos = getPermisosUsuario();
+    
+    if (permisos.puedeEditarCualquierCita) return true;
+    if (permisos.puedeEditarPropias && esEventoPropio(evento)) return true;
+    
+    return false;
+  };
+  
+  // Verificar si el usuario puede eliminar un evento
+  const puedeEliminarEvento = (evento) => {
+    const permisos = getPermisosUsuario();
+    
+    if (permisos.puedeEliminarCualquierCita) return true;
+    if (permisos.puedeEliminarPropias && esEventoPropio(evento)) return true;
+    
+    return false;
   };
   
   // Filtrar tipos de cita según permisos
@@ -88,23 +160,6 @@ export default function CalendarioWrapper() {
     return tiposCita.filter(tipo => 
       permisos.tiposCitaPermitidos?.includes(tipo.id)
     );
-  };
-  
-  // Filtrar subtipos según permisos
-  const getSubtiposPermitidos = (tipo) => {
-    const permisos = getPermisosUsuario();
-    
-    if (permisos.puedeCrearCualquierCita) {
-      return tipo.subtypes; // Todos los subtipos
-    }
-    
-    if (tipo.id === 'procedimiento' && permisos.procedimientosPermitidos) {
-      return tipo.subtypes.filter(subtype => 
-        permisos.procedimientosPermitidos.includes(subtype.id)
-      );
-    }
-    
-    return tipo.subtypes;
   };
   
   const [medicos, setMedicos] = useState([
@@ -185,6 +240,23 @@ export default function CalendarioWrapper() {
       }
     }
   ]);
+
+  // Combinar eventos de citas regulares con procedimientos quirúrgicos
+  useEffect(() => {
+    const procedimientosEventos = obtenerEventosProcedimientos();
+    const citasRegulares = events.filter(evento => !evento.id.startsWith('proc-'));
+    
+    // Filtrar los eventos según los permisos
+    let todosEventos = [...citasRegulares, ...procedimientosEventos];
+    
+    // Si el usuario no puede ver todo, filtrar solo los eventos permitidos
+    const permisos = getPermisosUsuario();
+    if (!permisos.puedeVerTodo) {
+      todosEventos = todosEventos.filter(evento => puedeVerEvento(evento));
+    }
+    
+    setEvents(todosEventos);
+  }, [obtenerEventosProcedimientos, user]);
 
   // Estados para los filtros
   const [filtroMedico, setFiltroMedico] = useState("");
@@ -344,46 +416,50 @@ export default function CalendarioWrapper() {
 
   // Manejar el evento cuando se hace clic en un evento existente
   const handleEventClick = (info) => {
-    const event = info.event;
+    const evento = info.event;
     
-    // En lugar de editar directamente, vamos a seleccionar la cita
-    const elements = document.querySelectorAll('.calendar-event-item');
-    elements.forEach(el => el.classList.remove('selected'));
-    
-    // Seleccionar visualmente este evento
-    const eventElement = info.el || document.querySelector(`[data-event-id="${event.id}"]`);
-    if (eventElement) {
-      eventElement.classList.add('selected');
+    // Verificar si el usuario puede ver los detalles de este evento
+    if (!puedeVerEvento(evento)) {
+      alert('No tienes permiso para ver los detalles de esta cita.');
+      return;
     }
     
-    // Guardar el evento seleccionado
-    setSelectedEvent(event);
+    // Verificar si es un procedimiento quirúrgico
+    if (evento.id.startsWith('proc-')) {
+      const procedimientoId = evento.extendedProps.procedimientoId;
+      
+      // Mostrar información del procedimiento de manera amigable
+      const mensaje = `
+        Procedimiento: ${evento.extendedProps.tipo} (${evento.extendedProps.ojo})
+        Paciente: ${evento.extendedProps.paciente} - ${evento.extendedProps.rut}
+        Médico: ${evento.extendedProps.medicoAsignado || 'No asignado'}
+        Estado: ${evento.extendedProps.estado}
+        
+        Diagnóstico: ${evento.extendedProps.detalles?.diagnostico || 'No especificado'}
+        
+        ¿Desea ver más detalles en el Dashboard médico?
+      `;
+      
+      if (confirm(mensaje)) {
+        // Redirigir al dashboard médico
+        window.location.href = "/dashboard";
+      }
+      
+      return;
+    }
     
-    // Cerrar cualquier menú contextual abierto
-    setContextMenuVisible(false);
-    setMenuTipoCitaVisible(false);
-    setShowProcedimientoOptions(false);
-    setEventContextMenuVisible(false);
-    
-    console.log('Cita seleccionada:', event.title);
+    // Manejo regular de eventos de citas
+    setSelectedEvent(evento);
+    setIsEditMode(false); // Inicialmente solo mostramos la información
+    setModalOpen(true);
   };
 
   // Esta función ha sido reemplazada por la lógica directa en eventDidMount
   
   // Función para editar una cita existente
   const editarCita = (event) => {
-    // Verificar permisos según el rol
-    const permisos = getPermisosUsuario();
-    
-    // Si el usuario es médico, solo puede editar sus propias citas
-    if (user?.rol === 'medico' && event.extendedProps.doctor !== medicos.find(m => m.id === user.id)?.nombre) {
-      alert('No tienes permiso para editar esta cita.');
-      return;
-    }
-    
-    // No permitir edición si el usuario no tiene permiso
-    if (!permisos.puedeEditarCualquierCita && 
-        !(user?.rol === 'medico' && event.extendedProps.doctor === medicos.find(m => m.id === user.id)?.nombre)) {
+    // Verificar si el usuario puede editar este evento
+    if (!puedeEditarEvento(event)) {
       alert('No tienes permiso para editar esta cita.');
       return;
     }
@@ -428,27 +504,31 @@ export default function CalendarioWrapper() {
   
   // Función para eliminar una cita
   const eliminarCita = (eventId) => {
-    // Verificar permisos según el rol
-    const permisos = getPermisosUsuario();
-    
-    /* Comentamos esta validación para permitir que todos los usuarios eliminen citas
-    if (!permisos.puedeEliminarCualquierCita) {
-      alert('No tienes permiso para eliminar esta cita.');
-      return;
-    }
-    */
-    
-    console.log('Eliminando cita con ID:', eventId);
-    
-    // Encontrar el evento a eliminar para mostrar información
+    // Encontrar el evento a eliminar para verificar permisos
     const eventoAEliminar = events.find(event => event.id === eventId);
     if (!eventoAEliminar) {
       console.error('No se encontró la cita a eliminar');
       return;
     }
     
-    // Confirmar la eliminación - Ya no necesitamos esta confirmación adicional
-    // porque tenemos el botón directo en el menú contextual
+    // Verificar si el usuario puede eliminar este evento
+    if (!puedeEliminarEvento(eventoAEliminar)) {
+      alert('No tienes permiso para eliminar esta cita.');
+      return;
+    }
+    
+    console.log('Eliminando cita con ID:', eventId);
+    
+    // Para procedimientos quirúrgicos, usar el contexto de procedimientos
+    if (eventId.startsWith('proc-')) {
+      const procedimientoId = parseInt(eventId.replace('proc-', ''));
+      const resultado = eliminarProcedimiento(procedimientoId);
+      
+      if (!resultado) {
+        alert('No se pudo eliminar el procedimiento. Verifica tus permisos.');
+        return;
+      }
+    }
     
     // Filtrar para eliminar el evento
     const eventosActualizados = events.filter(event => event.id !== eventId);
@@ -507,14 +587,28 @@ export default function CalendarioWrapper() {
 
   // Abrir el modal de nueva cita
   const handleNuevaCita = () => {
+    // Verificar permisos para crear citas
+    const permisos = getPermisosUsuario();
+    if (!permisos.puedeCrearCualquierCita && !permisos.puedeCrearPropias) {
+      alert('No tienes permiso para crear citas.');
+      return;
+    }
+    
     const now = new Date();
     const formattedDate = now.toISOString().split('T')[0];
+    
+    // Pre-seleccionar el médico si es un médico creando su propia cita
+    let doctorId = "";
+    if (user?.rol === 'medico' && user?.id) {
+      doctorId = user.id.toString();
+    }
     
     setSelectedDate(now);
     setFormData({
       ...formData,
       fecha: formattedDate,
-      hora: '08:00'
+      hora: '08:00',
+      doctor: doctorId
     });
     setModalOpen(true);
   };
@@ -532,6 +626,18 @@ export default function CalendarioWrapper() {
   const handleFormSubmit = (e) => {
     e.preventDefault();
     
+    // Verificar permisos nuevamente
+    const permisos = getPermisosUsuario();
+    const esCitaPropia = formData.doctor === user?.id?.toString();
+    
+    if (
+      (!permisos.puedeCrearCualquierCita && !esCitaPropia) ||
+      (!permisos.puedeCrearPropias && esCitaPropia)
+    ) {
+      alert('No tienes permiso para crear esta cita.');
+      return;
+    }
+    
     const pacienteNombre = pacientes.find(p => p.id === parseInt(formData.paciente))?.nombre || "";
     const pacienteApellido = pacientes.find(p => p.id === parseInt(formData.paciente))?.primer_apellido || "";
     const doctorNombre = medicos.find(d => d.id === parseInt(formData.doctor))?.nombre || "";
@@ -541,6 +647,13 @@ export default function CalendarioWrapper() {
 
     // Determinar si estamos en modo edición o creación
     if (isEditMode && formData.id) {
+      // Verificar permiso para editar si estamos editando
+      const eventoExistente = events.find(e => e.id === formData.id);
+      if (eventoExistente && !puedeEditarEvento(eventoExistente)) {
+        alert('No tienes permiso para editar esta cita.');
+        return;
+      }
+      
       // Actualizar evento existente
       const updatedEvents = events.map(event => {
         if (event.id === formData.id) {
@@ -608,7 +721,9 @@ export default function CalendarioWrapper() {
           doctor: doctorNombre,
           estado: 'pendiente',
           tipo: formData.tipo,
-          notas: formData.notas
+          notas: formData.notas,
+          // Agregar ID del médico para facilitar los permisos
+          medicoId: parseInt(formData.doctor)
         }
       };
       

@@ -98,6 +98,32 @@ export default function Sidebar({ className, closeSidebar }) {
             </Link>
           </PermisoRol>
           
+          <PermisoRol roles={['medico', 'admin']}>
+            <Link
+              to="/mis-procedimientos"
+              className={`${linkBaseClass} ${isActive("/mis-procedimientos") ? linkActiveClass : linkInactiveClass}`}
+              onClick={closeSidebar}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Mis Procedimientos
+            </Link>
+          </PermisoRol>
+          
+          <PermisoRol roles={['admin']}>
+            <Link
+              to="/procedimientos"
+              className={`${linkBaseClass} ${isActive("/procedimientos") ? linkActiveClass : linkInactiveClass}`}
+              onClick={closeSidebar}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+              </svg>
+              Panel Procedimientos
+            </Link>
+          </PermisoRol>
+          
           <PermisoRol roles={['admin']}>
             <Link
               to="/usuarios"
@@ -105,7 +131,7 @@ export default function Sidebar({ className, closeSidebar }) {
               onClick={closeSidebar}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
               </svg>
               Usuarios
             </Link>
