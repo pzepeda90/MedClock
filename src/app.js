@@ -17,7 +17,7 @@ const reporteRoutes = require('./routes/reporte.routes');
 
 // Inicializar la aplicación Express
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // Middleware
 app.use(cors({

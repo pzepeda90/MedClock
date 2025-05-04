@@ -24,7 +24,7 @@ export const UserProvider = ({ children }) => {
             nombre: "Juan",
             apellido: "Pérez",
             email: "juan@example.com",
-            rol: "admin", // "admin", "medico" o "recepcionista"
+            rol: localStorage.getItem("userRole") || "admin", // Usar rol guardado o por defecto "admin"
           };
           
           setUser(mockUser);
@@ -63,7 +63,7 @@ export const UserProvider = ({ children }) => {
           nombre: "Juan",
           apellido: "Pérez",
           email,
-          rol: "admin", // Puedes cambiar esto para probar diferentes roles
+          rol: localStorage.getItem("userRole") || "admin", // Usar rol guardado o por defecto "admin"
         },
       };
       
@@ -117,6 +117,20 @@ export const UserProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Función para cambiar rol (sólo para desarrollo)
+  const changeRole = (newRole) => {
+    if (!user) return;
+    
+    // Guardamos el rol en localStorage para mantenerlo entre recargas
+    localStorage.setItem("userRole", newRole);
+    
+    // Actualizamos el usuario actual con el nuevo rol
+    setUser({
+      ...user,
+      rol: newRole
+    });
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -126,6 +140,7 @@ export const UserProvider = ({ children }) => {
         login,
         register,
         logout,
+        changeRole, // Exponemos la nueva función
       }}
     >
       {children}

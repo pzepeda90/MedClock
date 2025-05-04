@@ -22,6 +22,15 @@ export default function Citas() {
     estado: "programada"
   });
 
+  // Estados para los filtros
+  const [filtroMedico, setFiltroMedico] = useState("");
+  const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
+  const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
+  const [filtroEspecialidad, setFiltroEspecialidad] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("");
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [citasFiltradas, setCitasFiltradas] = useState([]);
+
   // Columnas para la tabla
   const columnas = [
     { 
@@ -166,11 +175,59 @@ export default function Citas() {
       ];
       
       setCitas(citasMock);
+      setCitasFiltradas(citasMock);
       setPacientes(pacientesMock);
       setMedicos(medicosMock);
       setLoading(false);
     }, 1000);
   }, []);
+
+  // Obtener todas las especialidades únicas de los médicos
+  const especialidades = [...new Set(medicos.map(medico => medico.especialidad))];
+
+  // Función para aplicar filtros
+  const aplicarFiltros = () => {
+    let resultado = [...citas];
+    
+    // Filtrar por médico
+    if (filtroMedico) {
+      resultado = resultado.filter(cita => cita.medico_id.toString() === filtroMedico);
+    }
+    
+    // Filtrar por especialidad
+    if (filtroEspecialidad) {
+      resultado = resultado.filter(cita => 
+        cita.medico && cita.medico.especialidad === filtroEspecialidad
+      );
+    }
+    
+    // Filtrar por fecha desde
+    if (filtroFechaDesde) {
+      resultado = resultado.filter(cita => cita.fecha >= filtroFechaDesde);
+    }
+    
+    // Filtrar por fecha hasta
+    if (filtroFechaHasta) {
+      resultado = resultado.filter(cita => cita.fecha <= filtroFechaHasta);
+    }
+    
+    // Filtrar por estado
+    if (filtroEstado) {
+      resultado = resultado.filter(cita => cita.estado === filtroEstado);
+    }
+    
+    setCitasFiltradas(resultado);
+  };
+  
+  // Limpiar filtros
+  const limpiarFiltros = () => {
+    setFiltroMedico("");
+    setFiltroFechaDesde("");
+    setFiltroFechaHasta("");
+    setFiltroEspecialidad("");
+    setFiltroEstado("");
+    setCitasFiltradas(citas);
+  };
 
   // Acciones para la tabla
   const acciones = (cita) => {
@@ -222,7 +279,9 @@ export default function Citas() {
   const handleEliminar = (cita) => {
     if (window.confirm(`¿Está seguro de eliminar la cita de ${cita.paciente.nombre} ${cita.paciente.apellido}?`)) {
       // Simulamos eliminación
-      setCitas(prevCitas => prevCitas.filter(c => c.id !== cita.id));
+      const citasActualizadas = citas.filter(c => c.id !== cita.id);
+      setCitas(citasActualizadas);
+      setCitasFiltradas(citasActualizadas);
     }
   };
 
@@ -257,25 +316,28 @@ export default function Citas() {
     
     if (currentCita) {
       // Actualizar cita existente
-      setCitas(prevCitas => 
-        prevCitas.map(c => c.id === currentCita.id ? {
-          ...formData,
-          paciente,
-          medico
-        } : c)
-      );
+      const citasActualizadas = citas.map(c => c.id === currentCita.id ? {
+        ...formData,
+        paciente,
+        medico
+      } : c);
+      
+      setCitas(citasActualizadas);
+      // Volver a aplicar los filtros
+      aplicarFiltros();
     } else {
       // Crear nueva cita
       const newId = Math.max(0, ...citas.map(c => c.id)) + 1;
-      setCitas(prevCitas => [
-        ...prevCitas,
-        {
-          ...formData,
-          id: newId,
-          paciente,
-          medico
-        }
-      ]);
+      const nuevaCita = {
+        ...formData,
+        id: newId,
+        paciente,
+        medico
+      };
+      
+      const citasActualizadas = [...citas, nuevaCita];
+      setCitas(citasActualizadas);
+      setCitasFiltradas(citasActualizadas);
     }
     
     setModalOpen(false);
@@ -304,10 +366,138 @@ export default function Citas() {
         </div>
       </div>
       
+      {/* Sección de Filtros */}
+      <div className="mb-6 bg-white rounded-lg shadow-md p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-gray-800">Filtros</h3>
+          <button
+            onClick={() => setMostrarFiltros(!mostrarFiltros)}
+            className="text-blue-600 hover:text-blue-800 flex items-center"
+          >
+            {mostrarFiltros ? "Ocultar filtros" : "Mostrar filtros"}
+            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 ml-1 transition-transform ${mostrarFiltros ? "transform rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+        
+        {mostrarFiltros && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Médico
+              </label>
+              <select
+                value={filtroMedico}
+                onChange={(e) => setFiltroMedico(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Todos los médicos</option>
+                {medicos.map(medico => (
+                  <option key={medico.id} value={medico.id.toString()}>
+                    Dr. {medico.nombre} {medico.apellido}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Especialidad
+              </label>
+              <select
+                value={filtroEspecialidad}
+                onChange={(e) => setFiltroEspecialidad(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Todas las especialidades</option>
+                {especialidades.map((especialidad, index) => (
+                  <option key={index} value={especialidad}>
+                    {especialidad}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Estado
+              </label>
+              <select
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Todos los estados</option>
+                <option value="programada">Programada</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+                <option value="ausente">Ausente</option>
+              </select>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Desde
+                </label>
+                <input
+                  type="date"
+                  value={filtroFechaDesde}
+                  onChange={(e) => setFiltroFechaDesde(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Hasta
+                </label>
+                <input
+                  type="date"
+                  value={filtroFechaHasta}
+                  onChange={(e) => setFiltroFechaHasta(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {mostrarFiltros && (
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={limpiarFiltros}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+            >
+              Limpiar filtros
+            </button>
+            <button
+              onClick={aplicarFiltros}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Aplicar filtros
+            </button>
+          </div>
+        )}
+        
+        {/* Indicador de filtros aplicados */}
+        {(filtroMedico || filtroEspecialidad || filtroEstado || filtroFechaDesde || filtroFechaHasta) && (
+          <div className="mt-4 text-sm text-gray-600">
+            Mostrando {citasFiltradas.length} de {citas.length} citas
+            {filtroMedico && medicos.find(m => m.id.toString() === filtroMedico) && 
+              ` - Médico: Dr. ${medicos.find(m => m.id.toString() === filtroMedico).nombre} ${medicos.find(m => m.id.toString() === filtroMedico).apellido}`}
+            {filtroEspecialidad && ` - Especialidad: ${filtroEspecialidad}`}
+            {filtroEstado && ` - Estado: ${filtroEstado}`}
+            {filtroFechaDesde && ` - Desde: ${new Date(filtroFechaDesde).toLocaleDateString()}`}
+            {filtroFechaHasta && ` - Hasta: ${new Date(filtroFechaHasta).toLocaleDateString()}`}
+          </div>
+        )}
+      </div>
+      
       <TablaGeneral
         titulo="Listado de Citas"
         columnas={columnas}
-        datos={citas}
+        datos={citasFiltradas}
         acciones={acciones}
         cargando={loading}
         busqueda={true}

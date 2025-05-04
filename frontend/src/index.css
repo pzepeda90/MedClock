@@ -70,13 +70,47 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 input[type="tel"],
-input[type="date"] {
+input[type="date"],
+input[type="time"],
+select,
+textarea {
   background-color: whitesmoke;
   border-radius: 6px;
   border: 1px solid #e2e8f0;
   padding: 0.5em 1em;
   font-size: 1em;
   transition: border-color 0.25s;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  background-color: whitesmoke;
+  border: 1px solid #e2e8f0;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  position: relative;
+  cursor: pointer;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 3px;
+  height: 7px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 
 @media (prefers-color-scheme: light) {
@@ -90,4 +124,449 @@ input[type="date"] {
   button {
     background-color: whitesmoke;
   }
+}
+
+/* Estilos personalizados para FullCalendar */
+.fc .fc-toolbar-title {
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  background-color: whitesmoke;
+  border-color: #e2e8f0;
+  color: #4b5563;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+.fc .fc-daygrid-day-number,
+.fc .fc-col-header-cell-cushion {
+  color: #4b5563;
+  text-decoration: none;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.fc-event,
+.fc-event-main,
+.calendar-event-item {
+  position: relative !important;
+  z-index: 100 !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Destacar visualmente el evento seleccionado */
+.calendar-event-item.selected {
+  box-shadow: 0 0 0 3px #3b82f6 !important;
+  z-index: 600 !important;
+  outline: 3px solid #3b82f6 !important;
+  transform: scale(1.02) !important;
+  transition: all 0.2s ease !important;
+}
+
+/* Estilo para hacer muy obvio que es un evento clickeable */
+.fc-event:hover {
+  box-shadow: 0 0 5px rgba(59, 130, 246, 0.5) !important;
+  transform: scale(1.01) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* Asegurarse de que el menú contextual de eventos sea muy visible */
+#event-context-menu {
+  position: fixed !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 10000000 !important;
+  background-color: white !important;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.6) !important;
+  border: 3px solid #3b82f6 !important;
+  border-radius: 12px !important;
+  min-width: 300px !important;
+  max-width: 100vw !important;
+  min-height: 200px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Hacer que los elementos dentro del menú sean imposibles de ocultar */
+#event-context-menu > div {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Estilos específicos para el botón eliminar */
+#event-context-menu button[class*="bg-red-500"] {
+  background-color: #dc2626 !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 15px auto !important;
+  width: calc(100% - 40px) !important;
+  position: relative !important;
+  z-index: 10000001 !important;
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 12px 15px !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6) !important;
+  animation: pulse-red 1.5s infinite !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Agregar un halo rojo pulsante alrededor del botón eliminar */
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7) !important;
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0) !important;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0) !important;
+  }
+}
+
+/* Estilos personalizados para menús contextuales */
+.calendar-context-menu {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 50000 !important;
+  position: fixed;
+  border-radius: 0.5rem;
+  overflow: visible !important;
+  max-width: 300px;
+  border: 1px solid rgba(229, 231, 235, 1);
+  user-select: none;
+  pointer-events: auto !important;
+  background-color: white;
+  animation: menu-appear 0.1s ease-out;
+  transform-origin: top left;
+}
+
+/* Animación para la aparición de menús contextuales */
+@keyframes menu-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Estilos para el menú cuando se abre cerca del borde derecho */
+.calendar-context-menu.right-edge {
+  transform-origin: top right;
+}
+
+/* Estilos adicionales para los botones del menú contextual */
+.calendar-contextmenu-trigger {
+  transition: background-color 0.2s;
+  cursor: pointer !important;
+  white-space: nowrap;
+  display: flex !important;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  min-height: 2.5rem;
+}
+
+/* Sobrescribir estilos de botón para evitar conflictos */
+button.calendar-contextmenu-trigger {
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  background-color: transparent;
+}
+
+/* Cuando el cursor está sobre el botón */
+.calendar-contextmenu-trigger:hover {
+  background-color: rgba(243, 244, 246, 1);
+}
+
+/* Destacar visualmente cuando un menú está activo */
+.calendar-context-menu.active {
+  border: 2px solid #3b82f6;
+}
+
+/* Garantizar que los submenús estén visibles y por encima de cualquier otro elemento */
+#main-context-menu {
+  z-index: 50000 !important;
+}
+
+.calendar-context-menu .calendar-context-menu {
+  z-index: 50001 !important;
+}
+
+/* Bloquear interacciones cuando hay un menú contextual abierto */
+body.has-context-menu::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 9999999;
+  pointer-events: none;
+}
+
+/* Asegurar que el menú contextual esté por encima de todo */
+body.has-context-menu .calendar-context-menu {
+  z-index: 50000 !important;
+  pointer-events: auto !important;
+}
+
+/* Evitar que FullCalendar intercepte eventos de clic cuando hay un menú contextual visible */
+body.has-context-menu .fc-event,
+body.has-context-menu .fc-daygrid-day,
+body.has-context-menu .fc-timegrid-slot {
+  pointer-events: none;
+}
+
+/* Garantizar que las capas del menú contextual estén activas */
+body.has-context-menu #event-context-menu,
+body.has-context-menu #main-context-menu {
+  pointer-events: all !important;
+}
+
+/* Estilos para submenús en menús contextuales */
+.calendar-context-menu .calendar-context-menu {
+  z-index: 50001 !important;
+}
+
+/* Garantizar que los submenús permanezcan visibles */
+body.has-context-menu .calendar-context-menu .calendar-context-menu {
+  pointer-events: all !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Mejorar la posición de los submenús para que no se superpongan con el menú principal */
+.calendar-context-menu .calendar-context-menu {
+  margin-left: 5px !important;
+  box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para divs con comportamiento de botón */
+.calendar-context-menu div[role="button"],
+.calendar-context-menu div.cursor-pointer {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer !important;
+  user-select: none;
+  transition: background-color 0.2s;
+  outline: none;
+  width: 100%;
+  text-align: left;
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-context-menu div.cursor-pointer:hover {
+  background-color: rgba(243, 244, 246, 1);
+}
+
+/* Asegurar que los eventos de click funcionen */
+.calendar-context-menu div,
+.calendar-context-menu button,
+.calendar-context-menu * {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+/* Aumentar el área clickeable */
+.calendar-context-menu div.cursor-pointer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+/* Estilos adicionales para garantizar la visibilidad de los elementos del menú contextual */
+.calendar-context-menu > div > div {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Destacar el botón de eliminar */
+.calendar-context-menu .text-red-600 {
+  color: #DC2626 !important;
+  font-weight: 500 !important;
+}
+
+.calendar-context-menu .text-red-600:hover {
+  background-color: #FEE2E2 !important;
+}
+
+/* Estilos para los iconos en el menú contextual */
+.calendar-context-menu svg {
+  flex-shrink: 0;
+  min-width: 16px;
+  min-height: 16px;
+  margin-right: 8px !important;
+  display: inline-block !important;
+}
+
+/* Garantizar que el icono de eliminar sea siempre visible */
+.calendar-context-menu .text-red-500 {
+  fill: none !important;
+  stroke: #DC2626 !important;
+  stroke-width: 2 !important;
+}
+
+/* Capa para evitar que cualquier elemento oculte los menús contextuales */
+body.has-context-menu::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 999990;
+  pointer-events: none;
+}
+
+/* Asegurar que los eventos son más clickeables */
+.fc-event {
+  cursor: pointer !important;
+}
+
+/* Hacer que los eventos tengan un contorno visible al hacer hover */
+.fc-event:hover::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid #3b82f6;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 99;
+}
+
+/* Indicar claramente que los eventos tienen menú contextual */
+.fc-event::after {
+  content: '⋮';
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.fc-event:hover::after {
+  opacity: 1;
+}
+
+/* Estilos adicionales para mejorar la visibilidad de las citas del calendario */
+.fc-event {
+  cursor: pointer !important;
+  position: relative !important;
+  z-index: 500 !important;
+  pointer-events: auto !important;
+}
+
+/* Asegurarse que el menú contextual sea totalmente visible y no sea ocultado por otros elementos */
+#event-context-menu {
+  position: fixed !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 10000000 !important;
+  background-color: white !important;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.6) !important;
+  border: 3px solid #3b82f6 !important;
+  border-radius: 12px !important;
+  min-width: 300px !important;
+  max-width: 100vw !important;
+  min-height: 200px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Asegurar que el botón eliminar esté siempre visible */
+button.bg-red-500, 
+button.hover\:bg-red-600:hover,
+#event-context-menu button[class*="bg-red-"] {
+  background-color: #dc2626 !important;
+  color: white !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 15px auto !important;
+  width: calc(100% - 40px) !important;
+  position: relative !important;
+  z-index: 10000001 !important;
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 12px 15px !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6) !important;
+  animation: pulse-red 1.5s infinite !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+/* Asegurar que el menú contextual se muestre correctamente sobre los elementos del calendario */
+body.has-context-menu:after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 9999999;
+  pointer-events: none;
 }

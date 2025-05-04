@@ -11,6 +11,8 @@ import CalendarioWrapper from "./pages/CalendarioWrapper";
 import Pacientes from "./pages/Pacientes";
 import Medicos from "./pages/Medicos";
 import Citas from "./pages/Citas";
+import Perfil from "./pages/Perfil";
+import Usuarios from "./pages/Usuarios";
 
 const App = () => {
   const { token } = useContext(UserContext);
@@ -48,6 +50,14 @@ const App = () => {
       <Route
         path="/citas"
         element={token ? <Citas /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/perfil"
+        element={token ? <Perfil /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/usuarios"
+        element={token ? <Usuarios /> : <Navigate to="/login" />}
       />
       
       {/* Ruta de fallback */}

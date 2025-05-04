@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserContext } from "../providers/UserProvider";
+import MedClockLogo from "./MedClockLogo";
 
 // Componente para permisos basados en rol
 export function PermisoRol({ roles, children }) {
@@ -30,6 +31,11 @@ export default function Sidebar({ className, closeSidebar }) {
   return (
     <aside className={`bg-white border-r border-gray-200 p-4 ${className}`}>
       <div className="flex flex-col h-full">
+        {/* Logo en el sidebar */}
+        <div className="mb-6 py-2 flex justify-center border-b border-gray-200">
+          <MedClockLogo size="small" vertical={true} />
+        </div>
+        
         <div className="space-y-1 flex-grow">
           <Link
             to="/dashboard"

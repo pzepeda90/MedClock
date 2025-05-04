@@ -20,6 +20,7 @@ export default {
           900: '#1e3a8a',
           950: '#172554',
         },
+        whitesmoke: '#f5f5f5',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
