@@ -1,4 +1,4 @@
-import { pool } from '../database/db.js';
+import db from "../database/database.js";
 
 /**
  * Clase que representa el modelo de Diagnóstico
@@ -41,7 +41,7 @@ class Diagnostico {
       
       query += ` ORDER BY d.codigo`;
       
-      const result = await pool.query(query, params);
+      const result = await db.query(query, params);
       return result.rows;
     } catch (error) {
       console.error('Error al obtener diagnósticos:', error);
@@ -67,7 +67,7 @@ class Diagnostico {
         WHERE d.id = $1
       `;
       
-      const result = await pool.query(query, [id]);
+      const result = await db.query(query, [id]);
       return result.rowCount > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error(`Error al obtener diagnóstico con ID ${id}:`, error);
@@ -93,7 +93,7 @@ class Diagnostico {
         WHERE d.codigo = $1
       `;
       
-      const result = await pool.query(query, [codigo]);
+      const result = await db.query(query, [codigo]);
       return result.rowCount > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error(`Error al obtener diagnóstico con código ${codigo}:`, error);
@@ -107,7 +107,7 @@ class Diagnostico {
    * @returns {Promise<Object>} - Diagnóstico creado
    */
   static async create(data) {
-    const client = await pool.connect();
+    const client = await db.getClient();
     try {
       await client.query('BEGIN');
       
@@ -149,7 +149,7 @@ class Diagnostico {
    * @returns {Promise<Object>} - Relación creada
    */
   static async asociarACita(citaId, diagnosticoId, notas = null) {
-    const client = await pool.connect();
+    const client = await db.getClient();
     try {
       await client.query('BEGIN');
       
@@ -199,7 +199,7 @@ class Diagnostico {
         ORDER BY cd.fecha_creacion DESC
       `;
       
-      const result = await pool.query(query, [citaId]);
+      const result = await db.query(query, [citaId]);
       return result.rows;
     } catch (error) {
       console.error(`Error al obtener diagnósticos para la cita ${citaId}:`, error);

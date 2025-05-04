@@ -427,7 +427,7 @@ export default function CalendarioWrapper() {
     // Verificar si es un procedimiento quirúrgico
     if (evento.id.startsWith('proc-')) {
       const procedimientoId = evento.extendedProps.procedimientoId;
-      
+    
       // Mostrar información del procedimiento de manera amigable
       const mensaje = `
         Procedimiento: ${evento.extendedProps.tipo} (${evento.extendedProps.ojo})
@@ -526,7 +526,7 @@ export default function CalendarioWrapper() {
       
       if (!resultado) {
         alert('No se pudo eliminar el procedimiento. Verifica tus permisos.');
-        return;
+      return;
       }
     }
     
@@ -1540,171 +1540,171 @@ export default function CalendarioWrapper() {
             <p className="text-sm">Prueba a cambiar los criterios de filtrado</p>
           </div>
         ) : (
-          <FullCalendar
-            ref={calendarRef}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-            initialView={vista}
-            headerToolbar={false} // Ocultamos la barra de herramientas por defecto
-            locale={esLocale}
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView={vista}
+          headerToolbar={false} // Ocultamos la barra de herramientas por defecto
+          locale={esLocale}
             events={eventosFiltrados} // Ahora muestra los eventos filtrados
-            dateClick={handleDateClick}
-            eventClick={handleEventClick}
-            height="auto"
-            aspectRatio={1.8}
-            slotMinTime="08:00:00"
-            slotMaxTime="20:00:00"
-            allDaySlot={false}
-            slotDuration="00:15:00"
-            selectable={true}
-            editable={true}
-            nowIndicator={true}
-            dayMaxEvents={true}
-            eventTimeFormat={{
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false
-            }}
-            customButtons={{
-              contextMenu: {
-                text: 'Menú Contextual'
-              }
-            }}
-            // Evento para el clic derecho
-            dayCellDidMount={(info) => {
-              info.el.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                setContextMenuDate(info.date);
-                // Mostrar menú contextual
-                handleCalendarContextMenu({
-                  dateStr: info.date.toISOString(),
-                  jsEvent: e
-                });
+          dateClick={handleDateClick}
+          eventClick={handleEventClick}
+          height="auto"
+          aspectRatio={1.8}
+          slotMinTime="08:00:00"
+          slotMaxTime="20:00:00"
+          allDaySlot={false}
+          slotDuration="00:15:00"
+          selectable={true}
+          editable={true}
+          nowIndicator={true}
+          dayMaxEvents={true}
+          eventTimeFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }}
+          customButtons={{
+            contextMenu: {
+              text: 'Menú Contextual'
+            }
+          }}
+          // Evento para el clic derecho
+          dayCellDidMount={(info) => {
+            info.el.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              setContextMenuDate(info.date);
+              // Mostrar menú contextual
+              handleCalendarContextMenu({
+                dateStr: info.date.toISOString(),
+                jsEvent: e
               });
-            }}
-            // Evento para el clic derecho en celdas de tiempo
-            slotLabelDidMount={(info) => {
-              info.el.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                const date = new Date(info.date);
-                setContextMenuDate(date);
-                // Mostrar menú contextual
-                handleCalendarContextMenu({
-                  dateStr: date.toISOString(),
-                  jsEvent: e
-                });
+            });
+          }}
+          // Evento para el clic derecho en celdas de tiempo
+          slotLabelDidMount={(info) => {
+            info.el.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              const date = new Date(info.date);
+              setContextMenuDate(date);
+              // Mostrar menú contextual
+              handleCalendarContextMenu({
+                dateStr: date.toISOString(),
+                jsEvent: e
               });
-            }}
-            // Evento para el clic derecho en celdas de tiempo
-            slotDidMount={(info) => {
-              info.el.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                const date = new Date(info.date);
-                setContextMenuDate(date);
-                // Mostrar menú contextual
-                handleCalendarContextMenu({
-                  dateStr: date.toISOString(),
-                  jsEvent: e
-                });
+            });
+          }}
+          // Evento para el clic derecho en celdas de tiempo
+          slotDidMount={(info) => {
+            info.el.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              const date = new Date(info.date);
+              setContextMenuDate(date);
+              // Mostrar menú contextual
+              handleCalendarContextMenu({
+                dateStr: date.toISOString(),
+                jsEvent: e
               });
-            }}
-            // Evento para el clic derecho en eventos
-            eventDidMount={(info) => {
-              // Añadir un ID único al elemento del evento para depuración
-              info.el.setAttribute('data-event-id', info.event.id);
+            });
+          }}
+          // Evento para el clic derecho en eventos
+          eventDidMount={(info) => {
+            // Añadir un ID único al elemento del evento para depuración
+            info.el.setAttribute('data-event-id', info.event.id);
+            
+            // Añadir clase para identificar que es un evento de calendario
+            info.el.classList.add('calendar-event-item');
+            
+            // Hacer que el elemento sea claramente clickeable y con mayor z-index para garantizar interacción
+            info.el.style.cursor = 'pointer';
+            info.el.style.position = 'relative';
+            info.el.style.zIndex = '500';
+            info.el.style.pointerEvents = 'auto';
+            
+            // Agregar un log para verificar que se está montando correctamente
+            console.log('Evento montado:', info.event.title, info.el);
+            
+            // Función handler para el clic derecho con alta prioridad
+            const handleRightClick = (e) => {
+              console.log('CLIC DERECHO EN EVENTO detectado:', info.event.title);
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation(); // Detener propagación inmediata
               
-              // Añadir clase para identificar que es un evento de calendario
-              info.el.classList.add('calendar-event-item');
+              // Eliminar la clase selected de todos los eventos
+              document.querySelectorAll('.calendar-event-item').forEach(el => {
+                el.classList.remove('selected');
+              });
               
-              // Hacer que el elemento sea claramente clickeable y con mayor z-index para garantizar interacción
-              info.el.style.cursor = 'pointer';
-              info.el.style.position = 'relative';
-              info.el.style.zIndex = '500';
-              info.el.style.pointerEvents = 'auto';
+              // Agregar la clase selected al evento actual
+              info.el.classList.add('selected');
               
-              // Agregar un log para verificar que se está montando correctamente
-              console.log('Evento montado:', info.event.title, info.el);
+              // Cerrar cualquier menú contextual abierto
+              setContextMenuVisible(false);
+              setMenuTipoCitaVisible(false);
+              setShowProcedimientoOptions(false);
+              setEventContextMenuVisible(false);
               
-              // Función handler para el clic derecho con alta prioridad
-              const handleRightClick = (e) => {
-                console.log('CLIC DERECHO EN EVENTO detectado:', info.event.title);
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation(); // Detener propagación inmediata
-                
-                // Eliminar la clase selected de todos los eventos
-                document.querySelectorAll('.calendar-event-item').forEach(el => {
-                  el.classList.remove('selected');
-                });
-                
-                // Agregar la clase selected al evento actual
-                info.el.classList.add('selected');
-                
-                // Cerrar cualquier menú contextual abierto
-                setContextMenuVisible(false);
-                setMenuTipoCitaVisible(false);
-                setShowProcedimientoOptions(false);
-                setEventContextMenuVisible(false);
-                
-                // Guardar el evento seleccionado para que esté disponible en el menú
-                setSelectedEvent(info.event);
-                
-                // Mostrar el menú contextual inmediatamente sin setTimeout
-                const position = { 
-                  x: e.clientX, 
-                  y: e.clientY 
-                };
-                setContextMenuPosition(position);
-                
-                document.body.classList.add('has-context-menu');
-                setEventContextMenuVisible(true);
-                console.log('Menú contextual de evento mostrado en posición:', position);
-                
-                // Usar setTimeout solo para verificar que el menú esté visible
-                setTimeout(() => {
-                  const menu = document.getElementById('event-context-menu');
-                  if (menu) {
-                    console.log('Menú visible:', menu.style.display);
-                    const deleteButton = menu.querySelector('button');
-                    if (deleteButton) {
-                      console.log('Botón eliminar encontrado');
-                    } else {
-                      console.log('Botón eliminar NO encontrado');
-                    }
+              // Guardar el evento seleccionado para que esté disponible en el menú
+              setSelectedEvent(info.event);
+              
+              // Mostrar el menú contextual inmediatamente sin setTimeout
+              const position = { 
+                x: e.clientX, 
+                y: e.clientY 
+              };
+              setContextMenuPosition(position);
+              
+              document.body.classList.add('has-context-menu');
+              setEventContextMenuVisible(true);
+              console.log('Menú contextual de evento mostrado en posición:', position);
+              
+              // Usar setTimeout solo para verificar que el menú esté visible
+              setTimeout(() => {
+                const menu = document.getElementById('event-context-menu');
+                if (menu) {
+                  console.log('Menú visible:', menu.style.display);
+                  const deleteButton = menu.querySelector('button');
+                  if (deleteButton) {
+                    console.log('Botón eliminar encontrado');
                   } else {
-                    console.log('Menú NO encontrado');
+                    console.log('Botón eliminar NO encontrado');
                   }
-                }, 100);
-                
-                return false;
-              };
-              
-              // Remover listeners anteriores si existen
-              info.el.removeEventListener('contextmenu', handleRightClick, true);
-              
-              // Agregar nuevo listener con captura
-              info.el.addEventListener('contextmenu', handleRightClick, {
-                capture: true, 
-                passive: false
-              });
-              
-              // Handler para clic izquierdo (ahora solo selecciona el evento sin abrir modal)
-              const handleLeftClick = (e) => {
-                // Evitar propagación para que no se capture doblemente
-                e.stopPropagation();
-                
-                if (!info.event.dragging && !info.event.resizing) {
-                  // Llamar a la función de selección de evento
-                  handleEventClick({ event: info.event, el: info.el });
+                } else {
+                  console.log('Menú NO encontrado');
                 }
-              };
+              }, 100);
               
-              // Eliminar listener previo si existe
-              info.el.removeEventListener('click', handleLeftClick);
+              return false;
+            };
+            
+            // Remover listeners anteriores si existen
+            info.el.removeEventListener('contextmenu', handleRightClick, true);
+            
+            // Agregar nuevo listener con captura
+            info.el.addEventListener('contextmenu', handleRightClick, {
+              capture: true, 
+              passive: false
+            });
+            
+            // Handler para clic izquierdo (ahora solo selecciona el evento sin abrir modal)
+            const handleLeftClick = (e) => {
+              // Evitar propagación para que no se capture doblemente
+              e.stopPropagation();
               
-              // Agregar listener para clic izquierdo
-              info.el.addEventListener('click', handleLeftClick);
-            }}
-          />
+              if (!info.event.dragging && !info.event.resizing) {
+                // Llamar a la función de selección de evento
+                handleEventClick({ event: info.event, el: info.el });
+              }
+            };
+            
+            // Eliminar listener previo si existe
+            info.el.removeEventListener('click', handleLeftClick);
+            
+            // Agregar listener para clic izquierdo
+            info.el.addEventListener('click', handleLeftClick);
+          }}
+        />
         )}
         
         {/* Evento para capturar clic derecho en el calendario */}
@@ -1780,43 +1780,43 @@ export default function CalendarioWrapper() {
                   <p className="text-sm mt-2">Prueba a modificar los criterios de filtrado o añade nuevas citas</p>
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Médico</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paciente</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Médico</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
                     {eventosFiltrados.map(event => (
-                      <tr key={event.id}>
-                        <td className="px-4 py-3 whitespace-nowrap">{event.extendedProps.paciente}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{new Date(event.start).toLocaleDateString('es-ES')}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{new Date(event.start).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</td>
-                        <td className="px-4 py-3 whitespace-nowrap">{event.extendedProps.doctor}</td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            event.extendedProps.estado === 'pendiente' 
-                              ? 'bg-yellow-100 text-yellow-800' 
-                              : event.extendedProps.estado === 'confirmada' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {event.extendedProps.estado.charAt(0).toUpperCase() + event.extendedProps.estado.slice(1)}
-                          </span>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <button className="text-blue-600 hover:text-blue-800 mr-2">Editar</button>
-                        <button className="text-red-600 hover:text-red-800">Cancelar</button>
-                      </td>
-                    </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    <tr key={event.id}>
+                      <td className="px-4 py-3 whitespace-nowrap">{event.extendedProps.paciente}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{new Date(event.start).toLocaleDateString('es-ES')}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{new Date(event.start).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</td>
+                      <td className="px-4 py-3 whitespace-nowrap">{event.extendedProps.doctor}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs rounded-full ${
+                          event.extendedProps.estado === 'pendiente' 
+                            ? 'bg-yellow-100 text-yellow-800' 
+                            : event.extendedProps.estado === 'confirmada' 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}>
+                          {event.extendedProps.estado.charAt(0).toUpperCase() + event.extendedProps.estado.slice(1)}
+                        </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <button className="text-blue-600 hover:text-blue-800 mr-2">Editar</button>
+                      <button className="text-red-600 hover:text-red-800">Cancelar</button>
+                    </td>
+                  </tr>
+                  ))}
+                </tbody>
+              </table>
               )}
             </div>
           </div>

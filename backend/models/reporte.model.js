@@ -1,4 +1,4 @@
-import { pool } from '../database/db.js';
+import db from "../database/database.js";
 
 /**
  * Clase que representa el modelo de Reporte
@@ -22,7 +22,7 @@ class Reporte {
           (SELECT COUNT(*) FROM diagnosticos) AS total_diagnosticos
       `;
       
-      const result = await pool.query(query);
+      const result = await db.query(query);
       return result.rowCount > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error('Error al obtener estadísticas generales:', error);
@@ -71,7 +71,7 @@ class Reporte {
         ORDER BY periodo
       `;
       
-      const result = await pool.query(query, [fechaInicio, fechaFin]);
+      const result = await db.query(query, [fechaInicio, fechaFin]);
       return result.rows;
     } catch (error) {
       console.error('Error al obtener estadísticas de citas por período:', error);
@@ -101,7 +101,7 @@ class Reporte {
         ORDER BY total_citas DESC
       `;
       
-      const result = await pool.query(query, [fechaInicio, fechaFin]);
+      const result = await db.query(query, [fechaInicio, fechaFin]);
       return result.rows;
     } catch (error) {
       console.error('Error al obtener estadísticas de citas por especialidad:', error);
@@ -127,7 +127,7 @@ class Reporte {
         WHERE h.fecha BETWEEN $1 AND $2
       `;
       
-      const result = await pool.query(query, [fechaInicio, fechaFin]);
+      const result = await db.query(query, [fechaInicio, fechaFin]);
       return result.rowCount > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error('Error al obtener estadísticas de horarios:', error);
@@ -160,7 +160,7 @@ class Reporte {
         LIMIT $3
       `;
       
-      const result = await pool.query(query, [fechaInicio, fechaFin, limit]);
+      const result = await db.query(query, [fechaInicio, fechaFin, limit]);
       return result.rows;
     } catch (error) {
       console.error('Error al obtener diagnósticos frecuentes:', error);

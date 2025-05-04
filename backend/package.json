@@ -1,7 +1,7 @@
 {
-  "name": "u2",
+  "name": "agenda-medica-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "API RESTful para sistema de agendamiento médico",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -12,20 +12,42 @@
     "test:watch": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "migrate:pacientes": "node database/run-migration.js",
-    "init:db": "node database/init-db.js"
+    "migrate:codigos": "node scripts/migrate-codigos.js",
+    "migrate:codigos:samples": "node scripts/migrate-codigos.js --with-samples",
+    "migrate:auditoria": "node scripts/migrate-auditoria.js",
+    "db:check": "node scripts/check-tables.js",
+    "init:db": "node database/init-db.js",
+    "init:db:full": "node database/init-full-db.js",
+    "db:init:all": "node scripts/init-database.js",
+    "db:init:all:samples": "node scripts/init-database.js --with-samples",
+    "db:init:force": "node scripts/init-database.js --force",
+    "db:init:force:samples": "node scripts/init-database.js --force --with-samples"
   },
-  "keywords": [],
+  "keywords": [
+    "healthcare",
+    "scheduling",
+    "medical",
+    "appointments",
+    "doctor",
+    "patient"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "chalk": "^5.3.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.0.3",
+    "node-fetch": "^3.3.0",
     "pg": "^8.11.3",
-    "pg-format": "^1.0.4"
+    "pg-format": "^1.0.4",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.27.1",

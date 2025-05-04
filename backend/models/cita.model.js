@@ -1,4 +1,4 @@
-import { pool } from '../database/db.js';
+import db from "../database/database.js";
 
 /**
  * Clase que representa el modelo de Cita
@@ -64,7 +64,7 @@ class Cita {
       
       query += ` ORDER BY h.fecha DESC, h.hora_inicio`;
       
-      const result = await pool.query(query, values);
+      const result = await db.query(query, values);
       return result.rows;
     } catch (error) {
       console.error('Error al obtener citas:', error);
@@ -116,7 +116,7 @@ class Cita {
         WHERE c.id = $1
       `;
       
-      const result = await pool.query(query, [id]);
+      const result = await db.query(query, [id]);
       return result.rowCount > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error(`Error al obtener cita con ID ${id}:`, error);
@@ -130,7 +130,7 @@ class Cita {
    * @returns {Promise<Object>} - Cita creada
    */
   static async createCita(datosCita) {
-    const client = await pool.connect();
+    const client = await db.getClient();
     try {
       await client.query('BEGIN');
       
@@ -192,7 +192,7 @@ class Cita {
    * @returns {Promise<Object|null>} - Cita actualizada o null
    */
   static async updateCita(id, datosCita) {
-    const client = await pool.connect();
+    const client = await db.getClient();
     try {
       await client.query('BEGIN');
       
@@ -205,7 +205,7 @@ class Cita {
       // Agregar campos a actualizar
       for (const [campo, valor] of Object.entries(datosCita)) {
         if (campo !== 'id') { // Evitar actualizar el ID
-          updates.push(`${campo} = $${paramIndex}`);
+          updates.push(`${campo} = ${paramIndex}`);
           values.push(valor);
           paramIndex++;
         }
@@ -219,7 +219,7 @@ class Cita {
       
       // Completar la consulta
       updateQuery += updates.join(', ');
-      updateQuery += ` WHERE id = $${paramIndex} RETURNING *`;
+      updateQuery += ` WHERE id = ${paramIndex} RETURNING *`;
       values.push(id);
       
       // Ejecutar la actualización
@@ -268,7 +268,7 @@ class Cita {
    * @returns {Promise<Object|null>} - Cita eliminada o null
    */
   static async deleteCita(id) {
-    const client = await pool.connect();
+    const client = await db.getClient();
     try {
       await client.query('BEGIN');
       

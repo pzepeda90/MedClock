@@ -14,6 +14,9 @@ import Medicos from "./pages/Medicos";
 import Citas from "./pages/Citas";
 import Perfil from "./pages/Perfil";
 import Usuarios from "./pages/Usuarios";
+import CodigosProcedimiento from "./pages/CodigosProcedimiento";
+import PagosMedico from "./pages/PagosMedico";
+import GestionPagos from "./pages/GestionPagos";
 
 function App() {
   return (
@@ -40,7 +43,7 @@ function App() {
         } 
       />
       
-      <Route 
+      <Route
         path="/procedimientos" 
         element={
           <RequireAuth requireAdmin={true}>
@@ -49,7 +52,7 @@ function App() {
         } 
       />
       
-      <Route 
+      <Route
         path="/mis-procedimientos" 
         element={
           <RequireAuth requireMedico={true}>
@@ -58,8 +61,35 @@ function App() {
         } 
       />
       
-      <Route 
-        path="/pacientes" 
+      <Route
+        path="/codigos-procedimientos" 
+        element={
+          <RequireAuth requireAdmin={true}>
+            <CodigosProcedimiento />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route
+        path="/mis-pagos" 
+        element={
+          <RequireAuth requireMedico={true}>
+            <PagosMedico />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route
+        path="/pagos" 
+        element={
+          <RequireAuth requireAdmin={true}>
+            <GestionPagos />
+          </RequireAuth>
+        } 
+      />
+      
+      <Route
+        path="/pacientes"
         element={
           <RequireAuth>
             <Pacientes />
@@ -67,8 +97,8 @@ function App() {
         } 
       />
       
-      <Route 
-        path="/medicos" 
+      <Route
+        path="/medicos"
         element={
           <RequireAuth>
             <Medicos />
@@ -76,8 +106,8 @@ function App() {
         } 
       />
       
-      <Route 
-        path="/citas" 
+      <Route
+        path="/citas"
         element={
           <RequireAuth>
             <Citas />
@@ -85,8 +115,8 @@ function App() {
         } 
       />
       
-      <Route 
-        path="/perfil" 
+      <Route
+        path="/perfil"
         element={
           <RequireAuth>
             <Perfil />
